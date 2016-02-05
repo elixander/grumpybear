@@ -1,0 +1,89 @@
+.dragging, .drag-icon {
+	cursor: -webkit-grabbing !important;
+}
+
+.hidden {
+	display: none !important;
+}
+
+/*
+ * Container for the content
+ */
+.content-box {
+	min-width: 300px;
+	max-width: 700px;
+	border: 1px solid grey;
+	margin: 30px auto;
+}
+
+/*
+ * Container for the comic panels so far
+ */
+.comic-panels {
+	background-color: rgb(200, 180, 240);
+	margin: 20px;
+	border: 1px solid purple;
+	height: 300px; /* temporary */
+}
+
+/* 
+ * Container for the active panel (the drop target)
+ */
+.active-panel {
+	background-color: rgb(150, 210, 240);
+	height: 200px;
+	margin: 20px;
+	padding: 10px;
+}
+
+.active-panel.ready {
+	background-color: rgb(150, 230, 255);
+}
+
+/* 
+ * Container for the continue/restart options.
+ */
+.flow-action {
+	text-align: center;
+	margin: 20px;
+	padding: 20px;
+}
+
+.flow-action a {
+	padding: 20px;
+	border: 1px solid rgb(150, 210, 240);
+	border-radius: 5px;
+	background-color: rgb(150, 230, 255);
+	cursor: pointer;
+
+	-webkit-touch-callout: none;
+  	-webkit-user-select: none;
+}
+
+/*
+ * Containers for the current options (droppable items)
+ */
+.items-box {
+	display: flex;
+	flex-direction: row;
+	padding: 20px;
+	justify-content: center;
+}
+
+.item {
+	display: inline-block;
+	width: 100px;
+	height: 100px;
+	margin: 0px 20px;
+	line-height: 100px;
+	text-align: center;
+	cursor: -webkit-grab;
+}
+
+.item:hover {
+	background-color: pink;
+}
+
+.item:active {
+	cursor: -webkit-grabbing;
+}
