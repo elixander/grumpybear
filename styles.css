@@ -19,11 +19,29 @@
 /*
  * Container for the comic panels so far
  */
-.comic-panels {
+.panels-box {
 	background-color: rgb(200, 180, 240);
 	margin: 20px;
-	border: 1px solid purple;
-	height: 300px; /* temporary */
+}
+
+.panel-group {
+	display: flex;
+	flex-direction: row;
+	align-content: stretch;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.panel {
+	flex-grow: 1;
+	padding: 20px;
+	display: inline-block;
+	border: 1px solid black;
+	margin: 5px;
+}
+
+.panel-group.latest .panel {
+	border-color: pink;
 }
 
 /* 
@@ -31,6 +49,7 @@
  */
 .active-panel {
 	background-color: rgb(150, 210, 240);
+	border: 1px solid black;
 	height: 200px;
 	margin: 20px;
 	padding: 10px;

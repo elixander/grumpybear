@@ -4,28 +4,16 @@ document.addEventListener('DOMContentLoaded', function(){
     console.log('Hello, Bear! Happy Valentine\'s Day :)');
 
     var story = new Story();
-
-    function restart(){
-        story.destroy();
-        story = new Story();
-    }
 });
 
 
 function Story(){
-    this.remainingOptions = [
-        'rock', 
-        'coffee', 
-        'cookies', 
-        'books', 
-        'BB8', 
-        'turntable', 
-        'spam', 
-        'starbucks', 
-        'dog'  
-    ];
+    this.remainingOptions = Object.assign({}, Story.options);
+    // Remove the final option to save. 
+    delete this.remainingOptions[Story.FINAL_ITEM_ID];
 
     this.itemContainer = document.querySelector('.items-box');
+    this.panelsContainer = document.querySelector('.panels-box');
     this.dropTarget = document.querySelector('.active-panel');
     this.flowAction = document.querySelector('.flow-action');
 
@@ -40,6 +28,8 @@ function Story(){
         this.addItem();
     }
 
+    // TODO: Add the first panel.
+
     // Bind listeners to drop target. 
     this.dropTarget.addEventListener('dragenter', this.enterDropTarget.bind(this));
     this.dropTarget.addEventListener('dragleave', this.leaveDropTarget.bind(this));
@@ -47,6 +37,7 @@ function Story(){
     this.dropTarget.addEventListener('drop', this.drop.bind(this));
 
     document.querySelector('.continue').addEventListener('click', this.continue.bind(this));
+    document.querySelector('.restart').addEventListener('click', this.restart.bind(this));
 }
 
 Story.prototype.destroy = function(){
@@ -57,8 +48,9 @@ Story.prototype.destroy = function(){
  * Adds a random item from the remaining options
  *
  * @param {Element} elementToReplace (Optional) 
+ * @param {boolean} isFinalItem (Optional) 
  */
-Story.prototype.addItem = function(elementToReplace){
+Story.prototype.addItem = function(elementToReplace, isFinalItem){
     var newItem = document.createElement('div');
     newItem.classList.add('item');
     newItem.setAttribute('draggable', true);
@@ -67,84 +59,217 @@ Story.prototype.addItem = function(elementToReplace){
     newItem.addEventListener('dragstart', this.startItemDrag.bind(this));
     newItem.addEventListener('dragend', this.endItemDrag.bind(this));
 
+    if (isFinalItem){
+        newItem.dataset.id = Story.FINAL_ITEM_ID;
+        newItem.innerHTML = Story.FINAL_ITEM_ID;
 
-    // Choose a random item to add.
-    var which = Math.floor(Math.random() * this.remainingOptions.length);
-    var itemType = this.remainingOptions.splice(which, 1);
-    newItem.dataset.id = itemType;
-    newItem.innerHTML = itemType;
-
-    if (elementToReplace){
-        this.itemContainer.replaceChild(newItem, elementToReplace);
-    } else {
+        this.itemContainer.innerHTML = '';
         this.itemContainer.appendChild(newItem);
+    } else {
+        // Choose a random item to add.
+        var keys = Object.keys(this.remainingOptions);
+        var which = keys[Math.floor(Math.random() * keys.length)];
+        var itemInfo = this.remainingOptions[which];
+
+        // Remove the chosen item from the remaining items list. 
+        delete this.remainingOptions[which];
+
+        newItem.dataset.id = itemInfo.id;
+        newItem.innerHTML = itemInfo.id;
+
+        if (elementToReplace){
+            this.itemContainer.replaceChild(newItem, elementToReplace);
+        } else {
+            this.itemContainer.appendChild(newItem);
+        }
     }
 };
 
+Story.prototype.addPanels = function(panels){
+    var newPanelGroup = document.createElement('div');
+    newPanelGroup.classList.add('panel-group', 'latest');
+
+    var previous = document.querySelector('.latest');
+    if (previous) previous.classList.remove('latest');
+
+    panels.forEach(function(panelInfo) {
+        var newPanel = document.createElement('div');
+        newPanel.classList.add('panel');
+
+        newPanel.innerHTML = panelInfo.text;
+
+        newPanelGroup.appendChild(newPanel);
+    });
+
+    this.panelsContainer.appendChild(newPanelGroup);
+};
+
+Story.prototype.continue = function(evt){
+    // Show the options.
+    this.itemContainer.classList.remove('hidden');
+
+    // Show the drop target.
+    this.dropTarget.classList.remove('hidden');
+
+    // Hide the continue option.
+    this.flowAction.classList.add('hidden');
+};
+
+Story.prototype.restart = function(evt){
+    this.destroy();
+
+    var story = new Story();
+};
 
 Story.prototype.startItemDrag = function(evt){
     document.body.classList.add('dragging');
     
     evt.dataTransfer.effectAllowed = 'move';
     evt.dataTransfer.setDragImage(this.dragIcon, 10, 10);
-    evt.dataTransfer.setData('text/plain', evt.target.dataset.id);
+    evt.dataTransfer.setData('text/plain', 
+            JSON.stringify(Story.options[evt.target.dataset.id]));
 
     evt.target.style.opacity = 0.5;
-}
+};
 
 Story.prototype.endItemDrag = function(evt){
     document.body.classList.remove('dragging');
 
     evt.target.style.opacity = 1;
-}
+};
 
 
 Story.prototype.drop = function(evt){
     evt.preventDefault();
 
-    
+    itemInfo = JSON.parse(evt.dataTransfer.getData('text'));
 
-    // Increment the count of choices made.
-    this.choicesMade++;
+    if (itemInfo.id === Story.FINAL_ITEM_ID){
+        // The dropped item is the final item. 
 
-    if (this.choicesMade >= Story.MAX_CHOICES){
-
-    } else {
         // Hide the options.
         this.itemContainer.classList.add('hidden');
 
-        // Show the continue option.
-        this.flowAction.classList.remove('hidden');
+        // Show the restart option. 
+        document.querySelector('.continue').classList.add('hidden');
+        document.querySelector('.restart').classList.remove('hidden');
 
-        // Replace the chosen option. 
-        var chosen = document.querySelector('[data-id="' + evt.dataTransfer.getData('text') + '"]');
-        this.addItem(chosen /* elementToReplace */);
+        this.flowAction.classList.remove('hidden');
+    } else {
+         // Increment the count of choices made.
+        this.choicesMade++;
+
+        if (this.choicesMade >= Story.MAX_CHOICES){
+            // Show the continue option.
+            this.flowAction.classList.remove('hidden');
+
+            // Replace the options with the final option. 
+            this.addItem(null, true /* isFinalItem */);
+        } else {
+            // Hide the options.
+            this.itemContainer.classList.add('hidden');
+
+            // Show the continue option.
+            this.flowAction.classList.remove('hidden');
+
+            // Replace the chosen option. 
+            var chosen = document.querySelector('[data-id="' + itemInfo.id + '"]');
+            this.addItem(chosen /* elementToReplace */);
+        }
     }
-}
+
+    // Hide the drop target.
+    this.dropTarget.classList.add('hidden');
+
+    // Add the relevant panels.
+    this.addPanels(itemInfo.panels);
+
+    this.dropTarget.classList.remove('ready');
+};
 
 Story.prototype.allowDrop = function(evt){
     evt.preventDefault();
-
-}
-
+};
 
 Story.prototype.enterDropTarget = function(evt){
     this.dropTarget.classList.add('ready');
-}
+};
 
 Story.prototype.leaveDropTarget = function(evt){
     this.dropTarget.classList.remove('ready');
-}
+};
 
-Story.prototype.continue = function(evt){
-    // Show the options.
-    this.itemContainer.classList.remove('hidden');
+Story.FINAL_ITEM_ID = 'elephant';
 
-    // Hide the continue option.
-    this.flowAction.classList.add('hidden');
-}
+Story.FIRST_PANEL = {
+    text: null,
+    image: '',
+};
 
 Story.MAX_CHOICES = 4;
+
+Story.options = {
+    'rock': {
+        id: 'rock',
+        panels: [
+            {text: 'Ooh, can I climb it?'}, {text: '(Climbs on)'}
+        ]
+    }, 
+    'coffee': {
+        id: 'coffee',
+        panels: [
+            {text: '(grumble)'}, {text: '(drink)'}, {text: '(Perks up)'}
+        ]
+    }, 
+    'cookies': {
+        id: 'cookies',
+        panels: [
+            {text: 'Insert directly into mouth hole!'}, {text: '*chomp*'}
+        ]
+    }, 
+    'books': {
+        id: 'books',
+        panels: [
+            {text: 'Yay, plane reading!'}, {text: 'Or for rainy days.'}
+        ]
+    }, 
+    'BB8': {
+        id: 'BB8',
+        panels: [
+            {text: 'Ooh!'}, {text: 'Let\'s go see star wars!'}
+        ]
+    }, 
+    'turntable': { 
+        id: 'turntable',
+        panels: [
+            {text: 'Am I hipster yet?'}
+        ]
+    }, 
+    'spam': {
+        id: 'spam',
+        panels: [
+            {text: '(look)'}, {text: 'Aww...'}, {text: '(toss)'}
+        ]
+    }, 
+    'starbucks': {
+        id: 'starbucks',
+        panels: [
+            {text: '(sip)'}, {text: 'blech!'}, {text: '(toss)'}
+        ]
+    }, 
+    'dog': {
+        id: 'dog',
+        panels: [
+            {text: '(look)'}, {text: '(barks)'}, {text: '(Puts on headphones)'}
+        ]
+    },
+    'elephant': {
+        id: 'elephant',
+        panels: [
+            {text: '(Box opens)'}, {text: '(Hugs)'}, {text: 'Sappy romantic stuff goes here.'}
+        ]
+    },
+}
 
 // def transformRect2Polygon(elem):
 //     elem.tag = ns('polygon')
