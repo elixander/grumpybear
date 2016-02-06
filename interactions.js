@@ -1,13 +1,13 @@
-
-
 document.addEventListener('DOMContentLoaded', function(){
     console.log('Hello, Bear! Happy Valentine\'s Day :)');
 
-    var story = new Story();
+    new Story();
 });
 
 
 function Story(){
+    this.originalHTML = document.body.innerHTML;
+
     this.remainingOptions = Object.assign({}, Story.options);
     // Remove the final option to save. 
     delete this.remainingOptions[Story.FINAL_ITEM_ID];
@@ -16,6 +16,9 @@ function Story(){
     this.panelsContainer = document.querySelector('.panels-box');
     this.dropTarget = document.querySelector('.active-panel');
     this.flowAction = document.querySelector('.flow-action');
+
+    this.continueButton = this.flowAction.querySelector('.continue');
+    this.restartButton = this.flowAction.querySelector('.restart');
 
     this.dragIcon = document.createElement('img');
     this.dragIcon.src = './assets/present-icon.png';
@@ -28,7 +31,10 @@ function Story(){
         this.addItem();
     }
 
-    // TODO: Add the first panel.
+    // Add the first panel.
+    this.addPanels([Story.FIRST_PANEL]);
+
+    this.showDropTarget();
 
     // Bind listeners to drop target. 
     this.dropTarget.addEventListener('dragenter', this.enterDropTarget.bind(this));
@@ -36,12 +42,13 @@ function Story(){
     this.dropTarget.addEventListener('dragover', this.allowDrop.bind(this));
     this.dropTarget.addEventListener('drop', this.drop.bind(this));
 
-    document.querySelector('.continue').addEventListener('click', this.continue.bind(this));
-    document.querySelector('.restart').addEventListener('click', this.restart.bind(this));
+    this.continueButton.addEventListener('click', this.continue.bind(this));
+    this.restartButton.addEventListener('click', this.restart.bind(this));
 }
 
 Story.prototype.destroy = function(){
-    // Unbind all the listeners and clear the DOM content.
+    // Reset the contents entirely, wiping out listeners in the process. 
+    document.body.innerHTML = this.originalHTML;
 }
 
  /*
@@ -55,9 +62,9 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     newItem.classList.add('item');
     newItem.setAttribute('draggable', true);
 
-    // Set listeners.
+    // Set listeners and add them to the unbind method.
     newItem.addEventListener('dragstart', this.startItemDrag.bind(this));
-    newItem.addEventListener('dragend', this.endItemDrag.bind(this));
+    newItem.addEventListener('dragend', this.endItemDrag);
 
     if (isFinalItem){
         newItem.dataset.id = Story.FINAL_ITEM_ID;
@@ -102,14 +109,28 @@ Story.prototype.addPanels = function(panels){
     });
 
     this.panelsContainer.appendChild(newPanelGroup);
+
+    newPanelGroup.scrollIntoView();
 };
+
+/** 
+ * A wrapper method that just does the extra bit of removing the highlight from
+ * the previously highlighted panels. 
+ */
+Story.prototype.showDropTarget = function(){
+    this.dropTarget.classList.remove('hidden');
+
+    var previous = document.querySelector('.latest');
+    if (previous) previous.classList.remove('latest');
+}
 
 Story.prototype.continue = function(evt){
     // Show the options.
     this.itemContainer.classList.remove('hidden');
+    this.itemContainer.scrollIntoView();
 
     // Show the drop target.
-    this.dropTarget.classList.remove('hidden');
+    this.showDropTarget();
 
     // Hide the continue option.
     this.flowAction.classList.add('hidden');
@@ -118,7 +139,7 @@ Story.prototype.continue = function(evt){
 Story.prototype.restart = function(evt){
     this.destroy();
 
-    var story = new Story();
+    new Story();
 };
 
 Story.prototype.startItemDrag = function(evt){
@@ -147,39 +168,31 @@ Story.prototype.drop = function(evt){
     if (itemInfo.id === Story.FINAL_ITEM_ID){
         // The dropped item is the final item. 
 
-        // Hide the options.
-        this.itemContainer.classList.add('hidden');
-
         // Show the restart option. 
         document.querySelector('.continue').classList.add('hidden');
         document.querySelector('.restart').classList.remove('hidden');
-
-        this.flowAction.classList.remove('hidden');
     } else {
          // Increment the count of choices made.
         this.choicesMade++;
 
         if (this.choicesMade >= Story.MAX_CHOICES){
-            // Show the continue option.
-            this.flowAction.classList.remove('hidden');
-
             // Replace the options with the final option. 
             this.addItem(null, true /* isFinalItem */);
         } else {
-            // Hide the options.
-            this.itemContainer.classList.add('hidden');
-
-            // Show the continue option.
-            this.flowAction.classList.remove('hidden');
-
             // Replace the chosen option. 
             var chosen = document.querySelector('[data-id="' + itemInfo.id + '"]');
             this.addItem(chosen /* elementToReplace */);
         }
     }
 
+    // Hide the options.
+    this.itemContainer.classList.add('hidden');
+
     // Hide the drop target.
     this.dropTarget.classList.add('hidden');
+
+    // Show the continue or restart option.
+    this.flowAction.classList.remove('hidden');
 
     // Add the relevant panels.
     this.addPanels(itemInfo.panels);
@@ -202,7 +215,7 @@ Story.prototype.leaveDropTarget = function(evt){
 Story.FINAL_ITEM_ID = 'elephant';
 
 Story.FIRST_PANEL = {
-    text: null,
+    text: 'Grumpy Bear\'s Valentine',
     image: '',
 };
 
