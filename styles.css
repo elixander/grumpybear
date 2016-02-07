@@ -5,7 +5,7 @@
 
 body, html {
 	height: 100%;
-	font-size: 20px;
+	font-size: 120%;
 	font-family: 'Coming Soon', cursive;
 }
 
@@ -150,6 +150,10 @@ body, html {
 	cursor: -webkit-grabbing;
 }
 
+.drag-icon {
+	position: absolute;
+}
+
 /* -----------------------------------------------------------
  *
  * Style tweaks for larger screens
@@ -166,7 +170,7 @@ body, html {
 	}
 
 	body {
-		font-size: 16px;
+		font-size: 90%;
 	}
 
 	.item {

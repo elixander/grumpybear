@@ -72,31 +72,10 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     newItem.addEventListener('dragstart', this.startItemDrag.bind(this));
     newItem.addEventListener('dragend', this.endItemDrag);
 
-    // Try adding a touch litener
-    newItem.addEventListener('touchmove', function(event){
-        event.preventDefault();
-
-        if (event.touches.length === 1){
-            var touch = event.touches[0];
-            this.dragIcon.style.position = 'absolute';
-            this.dragIcon.style.left = touch.pageX + 1 + 'px';
-            this.dragIcon.style.top = touch.pageY + 1 + 'px';
-            document.body.appendChild(this.dragIcon);
-        }
-    }.bind(this));
-    newItem.addEventListener('touchend', function(event){
-        if (event.touches.length === 0){
-            var touch = event.changedTouches[0];
-            var itemInfo = Story.options[touch.target.dataset.id];
-            var endElement = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (endElement === this.dropTarget){
-                this.onDropAction(itemInfo);
-            }
-            document.body.removeChild(this.dragIcon);
-        }
-    }.bind(this));
-
-
+    // Try adding a touch liteners.
+    newItem.addEventListener('touchstart', this.touchStart.bind(this));
+    newItem.addEventListener('touchmove', this.touchMove.bind(this));
+    newItem.addEventListener('touchend', this.touchEnd.bind(this));
 
     if (isFinalItem){
         newItem.dataset.id = Story.FINAL_ITEM_ID;
@@ -211,9 +190,54 @@ Story.prototype.restart = function(evt){
     new Story();
 };
 
+Story.prototype.touchStart = function(evt){
+    evt.preventDefault();
+
+    if (evt.touches.length === 1){
+        var touch = evt.touches[0];
+        this.dragIcon.style.left = touch.pageX + 1 + 'px';
+        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+        document.body.appendChild(this.dragIcon);
+
+        touch.target.style.opacity = 0.5;
+    }
+}
+
+Story.prototype.touchEnd = function(evt){
+    if (event.touches.length === 0){
+        var touch = event.changedTouches[0];
+        var itemInfo = Story.options[touch.target.dataset.id];
+        var endElement = document.elementFromPoint(touch.clientX, touch.clientY);
+        
+        if (endElement === this.dropTarget){
+            this.chooseOption(itemInfo);
+        }
+        document.body.removeChild(this.dragIcon);
+
+        touch.target.style.opacity = 1;
+    }
+
+    this.dropTarget.classList.remove('ready');
+}
+
+Story.prototype.touchMove = function(evt){
+    event.preventDefault();
+
+    if (event.touches.length === 1){
+        var touch = event.touches[0];
+        this.dragIcon.style.left = touch.pageX + 1 + 'px';
+        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+
+        var hoverElement = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (hoverElement === this.dropTarget){
+            this.dropTarget.classList.add('ready');
+        } else {
+            this.dropTarget.classList.remove('ready');
+        }
+    }
+}
+
 Story.prototype.startItemDrag = function(evt){
-    document.body.classList.add('dragging');
-    
     evt.dataTransfer.effectAllowed = 'move';
     evt.dataTransfer.setDragImage(this.dragIcon, 10, 10);
     evt.dataTransfer.setData('text/plain', 
@@ -223,8 +247,6 @@ Story.prototype.startItemDrag = function(evt){
 };
 
 Story.prototype.endItemDrag = function(evt){
-    document.body.classList.remove('dragging');
-
     evt.target.style.opacity = 1;
 };
 
@@ -233,7 +255,7 @@ Story.prototype.drop = function(evt){
     evt.preventDefault();
 
     itemInfo = JSON.parse(evt.dataTransfer.getData('text'));
-    this.onDropAction(itemInfo);
+    this.chooseOption(itemInfo);
 };
 
 Story.prototype.allowDrop = function(evt){
@@ -248,7 +270,7 @@ Story.prototype.leaveDropTarget = function(evt){
     this.dropTarget.classList.remove('ready');
 };
 
-Story.prototype.onDropAction = function(itemInfo){
+Story.prototype.chooseOption = function(itemInfo){
     // Increment the count of choices made.
     this.choicesMade++;
 
