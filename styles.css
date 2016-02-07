@@ -5,10 +5,8 @@
 
 body, html {
 	height: 100%;
-}
-
-.dragging, .drag-icon {
-	cursor: -webkit-grabbing !important;
+	font-size: 120%;
+	font-family: 'Coming Soon', cursive;
 }
 
 .hidden {
@@ -19,14 +17,10 @@ body, html {
  * Container for the content
  */
 .content-box {
-	height: 100%;
-	position: static;
-	min-width: 300px;
-	max-width: 700px;
-	border-left: 1px dotted grey;
-	border-right: 1px dotted grey;
-	margin: 0 auto;
-	padding-top: 15px;
+	padding: 15px 0px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
 }
 
 /*
@@ -38,23 +32,45 @@ body, html {
 
 .panel-group {
 	display: flex;
-	flex-direction: row;
+	flex-flow: row wrap;
 	align-content: stretch;
-	flex-wrap: wrap;
 	justify-content: center;
 }
 
 .panel {
+	cursor: default;
 	flex-grow: 1;
 	padding: 20px;
 	display: inline-block;
 	border: 1px solid grey;
 	margin: 5px;
 	text-align: center;
+	text-wrap: wrap;
+
+	-webkit-touch-callout: none;
+  	-webkit-user-select: none;
 }
 
 .panel-group.latest .panel {
 	background-color: rgb(255, 210, 230);
+}
+
+.title-panel {
+	font-family: 'Amatic SC', cursive;
+	font-size: 3.5em;
+}
+
+.panel .panel-text {
+	display: block;
+	max-width: 50%;
+	margin: 0.25rem auto;
+}
+
+.panel .panel-image {
+	display: block;
+	margin: 0 auto;
+	max-width: 100%;
+	max-height: 100%;
 }
 
 /* 
@@ -62,14 +78,25 @@ body, html {
  */
 .active-panel {
 	background-color: rgb(255, 210, 230);
-	border: 1px solid grey;
-	height: 200px;
+	display: block;
+	height: auto;
 	margin: 5px 20px;
 	padding: 10px;
 }
 
 .active-panel.ready {
 	background-color: rgb(255, 200, 220);
+}
+
+.active-panel * {
+	pointer-events: none;
+}
+
+/* 
+ * Container for all actions, including item options.
+ */
+.actions-box {
+	flex-grow: 5;
 }
 
 /* 
@@ -106,10 +133,13 @@ body, html {
 	display: inline-block;
 	width: 100px;
 	height: 100px;
-	margin: 0px 20px;
+	margin: 0px 5px;
 	line-height: 100px;
 	text-align: center;
 	cursor: -webkit-grab;
+
+	-webkit-touch-callout: none;
+  	-webkit-user-select: none;
 }
 
 .item:hover {
@@ -118,4 +148,32 @@ body, html {
 
 .item:active {
 	cursor: -webkit-grabbing;
+}
+
+.drag-icon {
+	position: absolute;
+}
+
+/* -----------------------------------------------------------
+ *
+ * Style tweaks for larger screens
+ *
+ * -----------------------------------------------------------
+ */
+
+@media only screen and (min-width: 768px){
+	.content-box {
+		width: 700px;
+		border-left: 1px dotted grey;
+		border-right: 1px dotted grey;
+		margin: 0 auto;
+	}
+
+	body {
+		font-size: 90%;
+	}
+
+	.item {
+		margin: 0px 10px;
+	}
 }

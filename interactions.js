@@ -1,3 +1,8 @@
+// TODO: 
+// Make touch responsive
+// Sizing more responsive
+// Waggly borders
+
 document.addEventListener('DOMContentLoaded', function(){
     console.log('Hello, Bear! Happy Valentine\'s Day :)');
 
@@ -15,6 +20,7 @@ function Story(){
     this.itemContainer = document.querySelector('.items-box');
     this.panelsContainer = document.querySelector('.panels-box');
     this.dropTarget = document.querySelector('.active-panel');
+    this.commentElement = this.dropTarget.querySelector('.comment');
     this.flowAction = document.querySelector('.flow-action');
 
     this.continueButton = this.flowAction.querySelector('.continue');
@@ -31,8 +37,8 @@ function Story(){
         this.addItem();
     }
 
-    // Add the first panel.
-    this.addPanels([Story.FIRST_PANEL]);
+    // Add the first panels. 
+    this.addPanels(Story.FIRST_PANELS);
 
     this.showDropTarget();
 
@@ -65,6 +71,11 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     // Set listeners and add them to the unbind method.
     newItem.addEventListener('dragstart', this.startItemDrag.bind(this));
     newItem.addEventListener('dragend', this.endItemDrag);
+
+    // Try adding a touch liteners.
+    newItem.addEventListener('touchstart', this.touchStart.bind(this));
+    newItem.addEventListener('touchmove', this.touchMove.bind(this));
+    newItem.addEventListener('touchend', this.touchEnd.bind(this));
 
     if (isFinalItem){
         newItem.dataset.id = Story.FINAL_ITEM_ID;
@@ -102,15 +113,36 @@ Story.prototype.addPanels = function(panels){
     panels.forEach(function(panelInfo) {
         var newPanel = document.createElement('div');
         newPanel.classList.add('panel');
+        var text = document.createElement('span');
+        text.classList.add('panel-text');
+        var image = document.createElement('img');
+        image.classList.add('panel-image');
 
-        newPanel.innerHTML = panelInfo.text;
+        if (panelInfo.specialClasses){
+            DOMTokenList.prototype.add.apply(newPanel.classList, 
+                    panelInfo.specialClasses);
+        }
 
+        // Add the image and text
+        if (panelInfo.text){
+            text.innerHTML = panelInfo.text;
+            newPanel.appendChild(text);
+        }
+        if (panelInfo.image){
+            image.setAttribute('src', panelInfo.image);
+            if (panelInfo.textFirst){
+                newPanel.appendChild(image);
+            } else {
+                newPanel.insertBefore(image, text);
+            }
+        }
+
+        // Add the panel to the group.
         newPanelGroup.appendChild(newPanel);
     });
 
+    // Add the new panels. 
     this.panelsContainer.appendChild(newPanelGroup);
-
-    newPanelGroup.scrollIntoView();
 };
 
 /** 
@@ -118,6 +150,23 @@ Story.prototype.addPanels = function(panels){
  * the previously highlighted panels. 
  */
 Story.prototype.showDropTarget = function(){
+    // Update the message after each choice.
+    switch(this.choicesMade){
+        case 1: 
+            this.commentElement.innerHTML = 'Oh dear, that wasn\'t enough.';
+            break;
+        case 2: 
+            this.commentElement.innerHTML = 'Perhaps a few more..?';
+            break;
+        case 3: 
+            this.commentElement.innerHTML = 'Hmm... Not quite.';
+            break;
+        case 4: 
+            this.commentElement.innerHTML = 'A bit of grumpiness left!';
+            break;
+        default: 
+    }
+
     this.dropTarget.classList.remove('hidden');
 
     var previous = document.querySelector('.latest');
@@ -127,7 +176,6 @@ Story.prototype.showDropTarget = function(){
 Story.prototype.continue = function(evt){
     // Show the options.
     this.itemContainer.classList.remove('hidden');
-    this.itemContainer.scrollIntoView();
 
     // Show the drop target.
     this.showDropTarget();
@@ -142,9 +190,54 @@ Story.prototype.restart = function(evt){
     new Story();
 };
 
+Story.prototype.touchStart = function(evt){
+    evt.preventDefault();
+
+    if (evt.touches.length === 1){
+        var touch = evt.touches[0];
+        this.dragIcon.style.left = touch.pageX + 1 + 'px';
+        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+        document.body.appendChild(this.dragIcon);
+
+        touch.target.style.opacity = 0.5;
+    }
+}
+
+Story.prototype.touchEnd = function(evt){
+    if (event.touches.length === 0){
+        var touch = event.changedTouches[0];
+        var itemInfo = Story.options[touch.target.dataset.id];
+        var endElement = document.elementFromPoint(touch.clientX, touch.clientY);
+        
+        if (endElement === this.dropTarget){
+            this.chooseOption(itemInfo);
+        }
+        document.body.removeChild(this.dragIcon);
+
+        touch.target.style.opacity = 1;
+    }
+
+    this.dropTarget.classList.remove('ready');
+}
+
+Story.prototype.touchMove = function(evt){
+    event.preventDefault();
+
+    if (event.touches.length === 1){
+        var touch = event.touches[0];
+        this.dragIcon.style.left = touch.pageX + 1 + 'px';
+        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+
+        var hoverElement = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (hoverElement === this.dropTarget){
+            this.dropTarget.classList.add('ready');
+        } else {
+            this.dropTarget.classList.remove('ready');
+        }
+    }
+}
+
 Story.prototype.startItemDrag = function(evt){
-    document.body.classList.add('dragging');
-    
     evt.dataTransfer.effectAllowed = 'move';
     evt.dataTransfer.setDragImage(this.dragIcon, 10, 10);
     evt.dataTransfer.setData('text/plain', 
@@ -154,8 +247,6 @@ Story.prototype.startItemDrag = function(evt){
 };
 
 Story.prototype.endItemDrag = function(evt){
-    document.body.classList.remove('dragging');
-
     evt.target.style.opacity = 1;
 };
 
@@ -164,6 +255,24 @@ Story.prototype.drop = function(evt){
     evt.preventDefault();
 
     itemInfo = JSON.parse(evt.dataTransfer.getData('text'));
+    this.chooseOption(itemInfo);
+};
+
+Story.prototype.allowDrop = function(evt){
+    evt.preventDefault();
+};
+
+Story.prototype.enterDropTarget = function(evt){
+    this.dropTarget.classList.add('ready');
+};
+
+Story.prototype.leaveDropTarget = function(evt){
+    this.dropTarget.classList.remove('ready');
+};
+
+Story.prototype.chooseOption = function(itemInfo){
+    // Increment the count of choices made.
+    this.choicesMade++;
 
     if (itemInfo.id === Story.FINAL_ITEM_ID){
         // The dropped item is the final item. 
@@ -172,9 +281,6 @@ Story.prototype.drop = function(evt){
         document.querySelector('.continue').classList.add('hidden');
         document.querySelector('.restart').classList.remove('hidden');
     } else {
-         // Increment the count of choices made.
-        this.choicesMade++;
-
         if (this.choicesMade >= Story.MAX_CHOICES){
             // Replace the options with the final option. 
             this.addItem(null, true /* isFinalItem */);
@@ -198,26 +304,25 @@ Story.prototype.drop = function(evt){
     this.addPanels(itemInfo.panels);
 
     this.dropTarget.classList.remove('ready');
-};
-
-Story.prototype.allowDrop = function(evt){
-    evt.preventDefault();
-};
-
-Story.prototype.enterDropTarget = function(evt){
-    this.dropTarget.classList.add('ready');
-};
-
-Story.prototype.leaveDropTarget = function(evt){
-    this.dropTarget.classList.remove('ready');
-};
+}
 
 Story.FINAL_ITEM_ID = 'elephant';
 
-Story.FIRST_PANEL = {
-    text: 'Grumpy Bear\'s Valentine',
-    image: '',
-};
+Story.FIRST_PANELS = [
+    {
+        text: 'Grumpy Bear\'s Valentine',
+        image: '',
+        specialClasses: ['title-panel'],
+    }, 
+    {
+        text: 'Today is February 14th. Grumpy Bear is sleepy, hungry, and above all, grumpy!',
+        image: '',
+    }, 
+    {
+        text: '"It\'s Valentine\'s Day; where\'s my gift?" he grumbles.',
+        image: '',
+    }, 
+];
 
 Story.MAX_CHOICES = 4;
 
@@ -225,11 +330,11 @@ Story.options = {
     'rock': {
         id: 'rock',
         panels: [
-            {text: 'Ooh, can I climb it?'}, {text: '(Climbs on)'}
+            {text: '"Ooh, can I climb it?"'}, {text: '(Climbs on)'}
         ]
     }, 
-    'coffee': {
-        id: 'coffee',
+    'aeropress': {
+        id: 'aeropress',
         panels: [
             {text: '(grumble)'}, {text: '(drink)'}, {text: '(Perks up)'}
         ]
@@ -237,7 +342,7 @@ Story.options = {
     'cookies': {
         id: 'cookies',
         panels: [
-            {text: 'Insert directly into mouth hole!'}, {text: '*chomp*'}
+            {text: '"Insert directly into mouth hole!"'}, {text: '*chomp*'}
         ]
     }, 
     'books': {
