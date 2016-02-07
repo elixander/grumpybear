@@ -94,7 +94,12 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
         delete this.remainingOptions[which];
 
         newItem.dataset.id = itemInfo.id;
-        newItem.innerHTML = itemInfo.id;
+        newItem.setAttribute('title', itemInfo.id);
+        if (itemInfo.image){
+            newItem.innerHTML = '<img src="assets/' + itemInfo.image + '">';
+        } else {
+            newItem.innerHTML = itemInfo.id;
+        }
 
         if (elementToReplace){
             this.itemContainer.replaceChild(newItem, elementToReplace);
@@ -333,54 +338,63 @@ Story.MAX_CHOICES = 4;
 Story.options = {
     'rock': {
         id: 'rock',
+        image: 'rock.png',
         panels: [
             {text: '"Ooh, can I climb it?"'}, {text: '(Climbs on)'}
         ]
     }, 
     'aeropress': {
         id: 'aeropress',
+        image: 'aeropress.png',
         panels: [
             {text: '(grumble)'}, {text: '(drink)'}, {text: '(Perks up)'}
         ]
     }, 
     'cookies': {
         id: 'cookies',
+        image: 'cookies.png',
         panels: [
             {text: '"Insert directly into mouth hole!"'}, {text: '*chomp*'}
         ]
     }, 
     'books': {
         id: 'books',
+        image: 'books.png',
         panels: [
             {text: 'Yay, plane reading!'}, {text: 'Or for rainy days.'}
         ]
     }, 
     'BB8': {
         id: 'BB8',
+        image: 'bb8.png',
         panels: [
             {text: 'Ooh!'}, {text: 'Let\'s go see star wars!'}
         ]
     }, 
     'turntable': { 
         id: 'turntable',
+        image: 'turntable.png',
         panels: [
             {text: 'Am I hipster yet?'}
         ]
     }, 
     'spam': {
         id: 'spam',
+        image: 'spam.png',
         panels: [
             {text: '(look)'}, {text: 'Aww...'}, {text: '(toss)'}
         ]
     }, 
     'starbucks': {
         id: 'starbucks',
+        image: 'starbucks.png',
         panels: [
             {text: '(sip)'}, {text: 'blech!'}, {text: '(toss)'}
         ]
     }, 
     'dog': {
         id: 'dog',
+        image: 'dog.png',
         panels: [
             {text: '(look)'}, {text: '(barks)'}, {text: '(Puts on headphones)'}
         ]
