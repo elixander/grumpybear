@@ -1,7 +1,8 @@
 // TODO: 
-// Make touch responsive
 // Sizing more responsive
 // Waggly borders
+// Better scrolling
+// Relative sizing of panels
 
 document.addEventListener('DOMContentLoaded', function(){
     console.log('Hello, Bear! Happy Valentine\'s Day :)');
@@ -103,9 +104,12 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     }
 };
 
-Story.prototype.addPanels = function(panels){
+Story.prototype.addPanels = function(panels, panelGroupClasses){
     var newPanelGroup = document.createElement('div');
     newPanelGroup.classList.add('panel-group', 'latest');
+    if (panelGroupClasses){
+        DOMTokenList.prototype.add.apply(newPanelGroup.classList, panelGroupClasses);
+    }
 
     var previous = document.querySelector('.latest');
     if (previous) previous.classList.remove('latest');
@@ -195,8 +199,8 @@ Story.prototype.touchStart = function(evt){
 
     if (evt.touches.length === 1){
         var touch = evt.touches[0];
-        this.dragIcon.style.left = touch.pageX + 1 + 'px';
-        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+        this.dragIcon.style.left = touch.pageX - 50 + 'px';
+        this.dragIcon.style.top = touch.pageY - 50 + 'px';
         document.body.appendChild(this.dragIcon);
 
         touch.target.style.opacity = 0.5;
@@ -225,8 +229,8 @@ Story.prototype.touchMove = function(evt){
 
     if (event.touches.length === 1){
         var touch = event.touches[0];
-        this.dragIcon.style.left = touch.pageX + 1 + 'px';
-        this.dragIcon.style.top = touch.pageY + 1 + 'px';
+        this.dragIcon.style.left = touch.pageX - 50 + 'px';
+        this.dragIcon.style.top = touch.pageY - 50 + 'px';
 
         var hoverElement = document.elementFromPoint(touch.clientX, touch.clientY);
         if (hoverElement === this.dropTarget){
@@ -301,7 +305,7 @@ Story.prototype.chooseOption = function(itemInfo){
     this.flowAction.classList.remove('hidden');
 
     // Add the relevant panels.
-    this.addPanels(itemInfo.panels);
+    this.addPanels(itemInfo.panels, itemInfo.panelGroupClasses);
 
     this.dropTarget.classList.remove('ready');
 }
@@ -319,7 +323,7 @@ Story.FIRST_PANELS = [
         image: '',
     }, 
     {
-        text: '"It\'s Valentine\'s Day; where\'s my gift?" he grumbles.',
+        text: '"It\'s <span class="accent">Valentine\'s Day</span>; where\'s my gift?" he grumbles.',
         image: '',
     }, 
 ];
@@ -384,8 +388,16 @@ Story.options = {
     'elephant': {
         id: 'elephant',
         panels: [
-            {text: '(Box opens)'}, {text: '(Hugs)'}, {text: 'Sappy romantic stuff goes here.'}
-        ]
+            {
+                text: '(Box opens)',
+            }, {
+                text: '(Hugs)', 
+                specialClasses: ['hug-panel'],
+            }, {
+                text: 'Sappy romantic stuff goes here.'
+            }
+        ],
+        panelGroupClasses: ['final-panels'],
     },
 }
 

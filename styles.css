@@ -5,8 +5,10 @@
 
 body, html {
 	height: 100%;
-	font-size: 120%;
+	width: 100%;
+	font-size: 100%;
 	font-family: 'Coming Soon', cursive;
+	color: rgb(20, 39, 56);
 }
 
 .hidden {
@@ -17,6 +19,9 @@ body, html {
  * Container for the content
  */
 .content-box {
+	margin: 0px;
+	min-height: 100%;
+	position: relative;
 	padding: 15px 0px;
 	display: flex;
 	flex-direction: column;
@@ -42,7 +47,7 @@ body, html {
 	flex-grow: 1;
 	padding: 20px;
 	display: inline-block;
-	border: 1px solid grey;
+	border: 1px solid rgb(20, 39, 56);
 	margin: 5px;
 	text-align: center;
 	text-wrap: wrap;
@@ -51,8 +56,8 @@ body, html {
   	-webkit-user-select: none;
 }
 
-.panel-group.latest .panel {
-	background-color: rgb(255, 210, 230);
+.panel-group.latest:not(.final-panels) .panel {
+	background-color: rgb(255, 235, 228);
 }
 
 .title-panel {
@@ -60,10 +65,18 @@ body, html {
 	font-size: 3.5em;
 }
 
+.hug-panel {
+	background: url(assets/fallinghearts.gif);
+}
+
 .panel .panel-text {
 	display: block;
-	max-width: 50%;
+	max-width: 70%;
 	margin: 0.25rem auto;
+}
+
+.panel .panel-text .accent {
+	color: rgb(200, 112, 108);
 }
 
 .panel .panel-image {
@@ -77,7 +90,7 @@ body, html {
  * Container for the active panel (the drop target)
  */
 .active-panel {
-	background-color: rgb(255, 210, 230);
+	background-color: rgb(255, 235, 228);
 	display: block;
 	height: auto;
 	margin: 5px 20px;
@@ -85,7 +98,7 @@ body, html {
 }
 
 .active-panel.ready {
-	background-color: rgb(255, 200, 220);
+	background-color: rgb(255, 215, 200);
 }
 
 .active-panel * {
@@ -109,14 +122,18 @@ body, html {
 }
 
 .flow-action a {
-	padding: 20px;
-	border: 1px solid rgb(150, 210, 240);
-	border-radius: 5px;
+	padding: 1em;
+	border: 2px solid rgb(150, 210, 240);
+	border-radius: 1em;
 	background-color: rgb(150, 230, 255);
 	cursor: pointer;
 
 	-webkit-touch-callout: none;
   	-webkit-user-select: none;
+}
+
+.flow-action a:hover {
+	background-color: rgb(150, 230, 255);
 }
 
 /*
@@ -143,7 +160,7 @@ body, html {
 }
 
 .item:hover {
-	background-color: pink;
+	background-color: rgb(255, 235, 228);
 }
 
 .item:active {
@@ -152,6 +169,8 @@ body, html {
 
 .drag-icon {
 	position: absolute;
+	min-width: 40px;
+	pointer-events: none;
 }
 
 /* -----------------------------------------------------------
@@ -161,19 +180,27 @@ body, html {
  * -----------------------------------------------------------
  */
 
-@media only screen and (min-width: 768px){
+@media (min-width: 768px){
 	.content-box {
 		width: 700px;
-		border-left: 1px dotted grey;
-		border-right: 1px dotted grey;
+		border-left: 1px dotted rgb(244, 71, 71);
+		border-right: 1px dotted rgb(244, 71, 71);
 		margin: 0 auto;
 	}
 
 	body {
-		font-size: 90%;
+		font-size: 85%;
 	}
 
 	.item {
 		margin: 0px 10px;
+	}
+
+	.drag-icon {
+		min-width: 20px;
+	}
+
+	.panel .panel-text {
+		max-width: 20em;
 	}
 }
