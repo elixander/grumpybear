@@ -78,12 +78,10 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     newItem.addEventListener('touchmove', this.touchMove.bind(this));
     newItem.addEventListener('touchend', this.touchEnd.bind(this));
 
+    var itemInfo; 
     if (isFinalItem){
-        newItem.dataset.id = Story.FINAL_ITEM_ID;
-        newItem.innerHTML = Story.FINAL_ITEM_ID;
-
+        itemInfo = Story.options[Story.FINAL_ITEM_ID];
         this.itemContainer.innerHTML = '';
-        this.itemContainer.appendChild(newItem);
     } else {
         // Choose a random item to add.
         var keys = Object.keys(this.remainingOptions);
@@ -91,21 +89,21 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
         var itemInfo = this.remainingOptions[which];
 
         // Remove the chosen item from the remaining items list. 
-        delete this.remainingOptions[which];
+        delete this.remainingOptions[which];        
+    }
 
-        newItem.dataset.id = itemInfo.id;
-        newItem.setAttribute('title', itemInfo.id);
-        if (itemInfo.image){
-            newItem.innerHTML = '<img src="assets/' + itemInfo.image + '">';
-        } else {
-            newItem.innerHTML = itemInfo.id;
-        }
+    newItem.dataset.id = itemInfo.id;
+    newItem.setAttribute('title', itemInfo.id);
+    if (itemInfo.image){
+        newItem.innerHTML = '<img src="assets/' + itemInfo.image + '">';
+    } else {
+        newItem.innerHTML = itemInfo.id;
+    }
 
-        if (elementToReplace){
-            this.itemContainer.replaceChild(newItem, elementToReplace);
-        } else {
-            this.itemContainer.appendChild(newItem);
-        }
+    if (elementToReplace){
+        this.itemContainer.replaceChild(newItem, elementToReplace);
+    } else {
+        this.itemContainer.appendChild(newItem);
     }
 };
 
@@ -138,7 +136,7 @@ Story.prototype.addPanels = function(panels, panelGroupClasses){
             newPanel.appendChild(text);
         }
         if (panelInfo.image){
-            image.setAttribute('src', panelInfo.image);
+            image.setAttribute('src', 'assets/' + panelInfo.image);
             if (panelInfo.textFirst){
                 newPanel.appendChild(image);
             } else {
@@ -315,7 +313,7 @@ Story.prototype.chooseOption = function(itemInfo){
     this.dropTarget.classList.remove('ready');
 }
 
-Story.FINAL_ITEM_ID = 'elephant';
+Story.FINAL_ITEM_ID = 'mystery';
 
 Story.FIRST_PANELS = [
     {
@@ -368,7 +366,14 @@ Story.options = {
         id: 'BB8',
         image: 'bb8.png',
         panels: [
-            {text: 'Ooh!'}, {text: 'Let\'s go see star wars!'}
+            {
+                text: 'Ooh!', 
+                image: 'bb8/ooh.png',
+                textFirst: true,
+            }, {
+                text: 'Let\'s go see Star Wars!', 
+                image: 'bb8/starwars.png'
+            }
         ]
     }, 
     'turntable': { 
@@ -399,16 +404,24 @@ Story.options = {
             {text: '(look)'}, {text: '(barks)'}, {text: '(Puts on headphones)'}
         ]
     },
-    'elephant': {
-        id: 'elephant',
+    'mystery': {
+        id: 'mystery',
+        image: 'mystery.gif',
         panels: [
             {
                 text: '(Box opens)',
             }, {
-                text: '(Hugs)', 
+                text: '(Hugs)',
+                image: 'elephantbounce.gif', 
                 specialClasses: ['hug-panel'],
             }, {
-                text: 'Sappy romantic stuff goes here.'
+                text: 'Hello my dear bear :) I hope you are having a wonderful day. ' + 
+                        'I\'m sorry I can\'t spend Valentine\'s day with you in person this year,' + 
+                        ' but it was a lot of fun to make this little comic for you, and I hope that you\'ve enjoyed it,' + 
+                        ' and it makes up for being apart a little bit' + 
+                        ' (feel free to go back through and try options you didn\'t choose this time around ;)' + 
+                        ' I love you very much and look forward to seeing you soon!' + 
+                        '</p><p>Yours affectionately,</p><p>Tiny Ineffective Attack Monster</p>'
             }
         ],
         panelGroupClasses: ['final-panels'],
