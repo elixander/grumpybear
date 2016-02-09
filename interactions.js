@@ -137,7 +137,7 @@ Story.prototype.addPanels = function(panels, panelGroupClasses){
         }
         if (panelInfo.image){
             image.setAttribute('src', 'assets/' + panelInfo.image);
-            if (panelInfo.textFirst){
+            if (panelInfo.textFirst || !panelInfo.text){
                 newPanel.appendChild(image);
             } else {
                 newPanel.insertBefore(image, text);
@@ -338,14 +338,21 @@ Story.options = {
         id: 'rock',
         image: 'rock.png',
         panels: [
-            {text: '"Ooh, can I climb it?"'}, {text: '(Climbs on)'}
+            {
+                text: '"Ooh, can I climb it?"', 
+                image: 'rock/oohrock.png',
+            }, {
+                image: 'rock/hehe.png',
+            }
         ]
     }, 
     'aeropress': {
         id: 'aeropress',
         image: 'aeropress.png',
         panels: [
-            {text: '(grumble)'}, {text: '(drink)'}, {text: '(Perks up)'}
+            {image: 'aeropress/grumble.png'}, 
+            {image: 'aeropress/sip.png'}, 
+            {image: 'aeropress/perkup.png'},
         ]
     }, 
     'cookies': {
@@ -401,7 +408,9 @@ Story.options = {
         id: 'dog',
         image: 'dog.png',
         panels: [
-            {text: '(look)'}, {text: '(barks)'}, {text: '(Puts on headphones)'}
+            {image: 'dog/um.png'}, 
+            {image: 'dog/yip.png'}, 
+            {image: 'dog/headphones.png'}
         ]
     },
     'mystery': {
@@ -419,7 +428,8 @@ Story.options = {
                         'I\'m sorry I can\'t spend Valentine\'s day with you in person this year,' + 
                         ' but it was a lot of fun to make this little comic for you, and I hope that you\'ve enjoyed it,' + 
                         ' and it makes up for being apart a little bit' + 
-                        ' (feel free to go back through and try options you didn\'t choose this time around ;)' + 
+                        ' (feel free to go back through and try options you didn\'t choose this time around :)' + 
+                        ' There are nine total, not including the final item.)' + 
                         ' I love you very much and look forward to seeing you soon!' + 
                         '</p><p>Yours affectionately,</p><p>Tiny Ineffective Attack Monster</p>'
             }
