@@ -319,7 +319,7 @@ Story.FIRST_PANELS = [
     {
         text: 'Grumpy Bear\'s Valentine',
         image: '',
-        specialClasses: ['title-panel'],
+        specialClasses: ['title-panel', 'force-row'],
     }, 
     {
         text: 'Today is February 14th. Grumpy Bear is sleepy, hungry, and above all, grumpy!',
@@ -359,14 +359,28 @@ Story.options = {
         id: 'cookies',
         image: 'cookies.png',
         panels: [
-            {text: '"Insert directly into mouth hole!"'}, {text: '*chomp*'}
+            {
+                text: '"Insert directly into mouth hole!"',
+                image: 'cookies/insert.png',
+                textFirst: true,
+            }, {
+                text: '*chompnomnomnom*', 
+                image: 'cookies/yum.png',
+            }
         ]
     }, 
     'books': {
         id: 'books',
         image: 'books.png',
         panels: [
-            {text: 'Yay, plane reading!'}, {text: 'Or for rainy days.'}
+            {
+                text: 'Yay, plane reading!', 
+                image: 'books/planebooks.png', 
+                textFirst: true
+            }, {
+                text: 'Or for rainy days.', 
+                image: 'books/rainyread.png'
+            }
         ]
     }, 
     'BB8': {
@@ -387,21 +401,40 @@ Story.options = {
         id: 'turntable',
         image: 'turntable.png',
         panels: [
-            {text: 'Am I hipster yet?'}
+            {
+                image: 'turntable/enjoy.png',
+            }, {
+                text: 'Am I hipster yet?', 
+                image: 'turntable/hipster.png',
+                textFirst: true
+            }
         ]
     }, 
     'spam': {
         id: 'spam',
         image: 'spam.png',
         panels: [
-            {text: '(look)'}, {text: 'Aww...'}, {text: '(toss)'}
+            {
+                image: 'spam/mail.png'
+            }, {
+                text: 'Aww...', 
+                image: 'spam/aww.png'
+            }, {
+                image: 'spam/toss.png'
+            }
         ]
     }, 
     'starbucks': {
         id: 'starbucks',
         image: 'starbucks.png',
         panels: [
-            {text: '(sip)'}, {text: 'blech!'}, {text: '(toss)'}
+            {
+                image: 'starbucks/lick.png'
+            }, {
+                text: 'BLECH!',
+                image: 'starbucks/blech.png',
+                textFirst: true
+            }
         ]
     }, 
     'dog': {
@@ -418,16 +451,16 @@ Story.options = {
         image: 'mystery.gif',
         panels: [
             {
-                text: '(Box opens)',
+                image: 'mystery/open.gif',
+                specialClasses: ['force-row']
             }, {
-                text: '(Hugs)',
-                image: 'elephantbounce.gif', 
+                image: 'mystery/hug.png', 
                 specialClasses: ['hug-panel'],
             }, {
-                text: 'Hello my dear bear :) I hope you are having a wonderful day. ' + 
+                text: 'Hello, my dear bear :) I hope you are having a wonderful day. ' + 
                         'I\'m sorry I can\'t spend Valentine\'s day with you in person this year,' + 
-                        ' but it was a lot of fun to make this little comic for you, and I hope that you\'ve enjoyed it,' + 
-                        ' and it makes up for being apart a little bit' + 
+                        ' but it was a lot of fun to make this little comic thingy for you, and I hope that you\'ve enjoyed it,' + 
+                        ' and that it makes up for being apart a little bit' + 
                         ' (feel free to go back through and try options you didn\'t choose this time around :)' + 
                         ' There are nine total, not including the final item.)' + 
                         ' I love you very much and look forward to seeing you soon!' + 
