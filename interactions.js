@@ -107,6 +107,9 @@ Story.prototype.addItem = function(elementToReplace, isFinalItem){
     }
 };
 
+/*
+ * Returns the new panel group containing the new panels. 
+ */
 Story.prototype.addPanels = function(panels, panelGroupClasses){
     var newPanelGroup = document.createElement('div');
     newPanelGroup.classList.add('panel-group', 'latest');
@@ -150,6 +153,8 @@ Story.prototype.addPanels = function(panels, panelGroupClasses){
 
     // Add the new panels. 
     this.panelsContainer.appendChild(newPanelGroup);
+
+    return newPanelGroup;
 };
 
 /** 
@@ -187,6 +192,9 @@ Story.prototype.continue = function(evt){
     // Show the drop target.
     this.showDropTarget();
 
+    // Scroll to the bottom.
+    this.smoothScrollTo(this.dropTarget);
+
     // Hide the continue option.
     this.flowAction.classList.add('hidden');
 };
@@ -195,6 +203,27 @@ Story.prototype.restart = function(evt){
     this.destroy();
 
     new Story();
+};
+
+Story.prototype.smoothScrollTo = function(target){
+    var distance = target.offsetTop - 50;
+    
+    var scroll = function(){
+        var currentScroll = document.body.scrollTop;
+        document.body.scrollTop += Math.min(Story.DEFAULT_TRAVEL_DISTANCE, distance - currentScroll);
+        
+        var newScroll = document.body.scrollTop;
+
+        if (newScroll === currentScroll){
+            clearInterval(this.scrollTimer);
+        }
+    }.bind(this);
+
+    this.scrollTimer = window.setInterval(scroll, 25);
+}
+
+function cubicEasing(t) { 
+    return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
 };
 
 Story.prototype.touchStart = function(evt){
@@ -298,6 +327,9 @@ Story.prototype.chooseOption = function(itemInfo){
         }
     }
 
+    // Save the original scroll position;
+    var originalScroll = document.body.scrollTop;
+
     // Hide the options.
     this.itemContainer.classList.add('hidden');
 
@@ -308,10 +340,19 @@ Story.prototype.chooseOption = function(itemInfo){
     this.flowAction.classList.remove('hidden');
 
     // Add the relevant panels.
-    this.addPanels(itemInfo.panels, itemInfo.panelGroupClasses);
-
+    var newPanelGroup = this.addPanels(itemInfo.panels, itemInfo.panelGroupClasses);
+    
     this.dropTarget.classList.remove('ready');
+
+    // // Reset the scroll to the original. 
+    // setTimeout(function(){
+    //     document.body.scrollTop = originalScroll;
+    // }, 10);
+
+    // this.smoothScrollTo(newPanelGroup);
 }
+
+Story.DEFAULT_TRAVEL_DISTANCE = 20;
 
 Story.FINAL_ITEM_ID = 'mystery';
 
@@ -452,7 +493,7 @@ Story.options = {
         panels: [
             {
                 image: 'mystery/open.gif',
-                specialClasses: ['force-row']
+                specialClasses: ['force-row', 'open-panel']
             }, {
                 image: 'mystery/hug.png', 
                 specialClasses: ['hug-panel'],
