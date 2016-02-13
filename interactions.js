@@ -56,6 +56,9 @@ function Story(){
 Story.prototype.destroy = function(){
     // Reset the contents entirely, wiping out listeners in the process. 
     document.body.innerHTML = this.originalHTML;
+
+    // Clear the timer if it somehow still exists.
+    if (this.scrollTimer) clearInterval(this.scrollTimer);
 }
 
  /*
@@ -201,20 +204,22 @@ Story.prototype.continue = function(evt){
 
 Story.prototype.restart = function(evt){
     this.destroy();
+    document.body.scrollTop = 0;
 
     new Story();
 };
 
 Story.prototype.smoothScrollTo = function(target){
-    var distance = target.offsetTop - 50;
+    var distance = target.offsetTop;
     
     var scroll = function(){
         var currentScroll = document.body.scrollTop;
-        document.body.scrollTop += Math.min(Story.DEFAULT_TRAVEL_DISTANCE, distance - currentScroll);
+        var distanceToTravel = Math.ceil(Math.min(Story.DEFAULT_TRAVEL_DISTANCE, distance - currentScroll));
+        document.body.scrollTop += distanceToTravel;
         
         var newScroll = document.body.scrollTop;
 
-        if (newScroll === currentScroll){
+        if (newScroll <= currentScroll){
             clearInterval(this.scrollTimer);
         }
     }.bind(this);
@@ -327,29 +332,24 @@ Story.prototype.chooseOption = function(itemInfo){
         }
     }
 
-    // Save the original scroll position;
-    var originalScroll = document.body.scrollTop;
-
+    // Before manipulating DOM, set a min height before adding content to prevent page resizing.
+    var pageHeight = document.body.scrollHeight;
+    document.querySelector('.content-box').style['min-height'] = pageHeight + 'px';
+    
     // Hide the options.
     this.itemContainer.classList.add('hidden');
 
     // Hide the drop target.
     this.dropTarget.classList.add('hidden');
 
-    // Show the continue or restart option.
-    this.flowAction.classList.remove('hidden');
+    // Make sure the dropTarget is back in its original state. 
+    this.dropTarget.classList.remove('ready');
 
     // Add the relevant panels.
     var newPanelGroup = this.addPanels(itemInfo.panels, itemInfo.panelGroupClasses);
-    
-    this.dropTarget.classList.remove('ready');
 
-    // // Reset the scroll to the original. 
-    // setTimeout(function(){
-    //     document.body.scrollTop = originalScroll;
-    // }, 10);
-
-    // this.smoothScrollTo(newPanelGroup);
+    // Show the continue or restart option.
+    this.flowAction.classList.remove('hidden');
 }
 
 Story.DEFAULT_TRAVEL_DISTANCE = 20;

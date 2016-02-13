@@ -46,7 +46,7 @@ body {
 }
 
 .panel {
-	transition: opacity 100ms ease-in;
+	transition: background-color 100ms ease-in;
 	cursor: default;
 	flex-grow: 1;
 	padding: 20px;
@@ -64,6 +64,11 @@ body {
 
 .panel-group.latest:not(.final-panels) .panel {
 	background-color: rgb(255, 235, 228);
+	animation: fadeIn 200ms ease-in 1;
+}
+
+.final-panels .panel {
+	animation: opacityFadeIn 200ms ease-in 1;
 }
 
 .title-panel {
@@ -98,7 +103,7 @@ body {
 	display: block;
 	margin: 0 auto;
 	max-width: 100%;
-	max-height: 11em;
+	max-height: 12em;
 }
 
 /* 
@@ -110,6 +115,9 @@ body {
 	height: auto;
 	margin: 5px 20px;
 	padding: 10px;
+	transition: background-color 60ms;
+
+	animation: fadeIn 150ms ease-in 1;
 }
 
 .active-panel.ready {
@@ -197,6 +205,31 @@ body {
 	position: absolute;
 	min-width: 40px;
 	pointer-events: none;
+}
+
+@keyframes fadeIn {
+	0% {
+		background-color: rgb(255, 255, 255);
+		opacity: 0;
+	}
+
+	10% {
+		opacity: 1;
+	}
+
+	100% {
+		background-color: rgb(255, 235, 228);
+	}
+}
+
+@keyframes opacityFadeIn {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
 }
 
 /* -----------------------------------------------------------
