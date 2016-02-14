@@ -443,11 +443,11 @@ Story.options = {
         image: 'books.png',
         panels: [
             {
-                text: 'Yay, plane reading!', 
+                text: '"Yay, plane reading!"', 
                 image: 'books/planebooks.png', 
                 textFirst: true
             }, {
-                text: 'Or for rainy days.', 
+                text: '"Or for rainy days."', 
                 image: 'books/rainyread.png'
             }
         ]
@@ -457,11 +457,11 @@ Story.options = {
         image: 'bb8.png',
         panels: [
             {
-                text: 'Ooh!', 
+                text: '"Ooh!"', 
                 image: 'bb8/ooh.png',
                 textFirst: true,
             }, {
-                text: 'Let\'s go see Star Wars!', 
+                text: '"Let\'s go see Star Wars!"', 
                 image: 'bb8/starwars.png'
             }
         ]
@@ -473,7 +473,7 @@ Story.options = {
             {
                 image: 'turntable/enjoy.png',
             }, {
-                text: 'Am I hipster yet?', 
+                text: '"Am I hipster yet?"', 
                 image: 'turntable/hipster.png',
                 textFirst: true
             }
@@ -486,7 +486,7 @@ Story.options = {
             {
                 image: 'spam/mail.png'
             }, {
-                text: 'Aww...', 
+                text: '"Aww..."', 
                 image: 'spam/aww.png'
             }, {
                 image: 'spam/toss.png'
@@ -500,7 +500,7 @@ Story.options = {
             {
                 image: 'starbucks/lick.png'
             }, {
-                text: 'BLECH!',
+                text: '*BLECH!*',
                 image: 'starbucks/blech.png',
                 textFirst: true
             }
@@ -524,16 +524,20 @@ Story.options = {
                 specialClasses: ['force-row', 'open-panel']
             }, {
                 image: 'mystery/hug.png', 
+                text: '"Will you be my <span class="accent">Valentine</span>?"',
                 specialClasses: ['hug-panel'],
             }, {
-                text: 'Hello, my dear bear :) I hope you are having a wonderful day. ' + 
+                text: '<p>Hello, my dear bear :) I hope you are having a wonderful day. ' + 
                         'I\'m sorry I can\'t spend Valentine\'s day with you in person this year,' + 
                         ' but it was a lot of fun to make this little comic thingy for you, and I hope that you\'ve enjoyed it,' + 
                         ' and that it makes up for being apart a little bit' + 
                         ' (feel free to go back through and try options you didn\'t choose this time around :)' + 
                         ' There are nine total, not including the final item.)' + 
-                        ' I love you very much and look forward to seeing you soon!' + 
-                        '</p><p>Yours affectionately,</p><p>Tiny Ineffective Attack Monster</p>'
+                        ' As a side effect, I\'ve improved at drawing bears...' + 
+                        ' Which just means I shall have to draw you more, I suppose! :P' + 
+                        ' Enjoy your time with your father and your new living quarters!' +
+                        ' I miss you very much, love you even more, and look forward to seeing you soon!' + 
+                        '<br><br>Yours affectionately,<br>Elephant</p>'
             }
         ],
         panelGroupClasses: ['final-panels'],
