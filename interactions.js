@@ -1,14 +1,25 @@
-// TODO: 
-// Sizing more responsive
-// Waggly borders
-// Better scrolling
-// Relative sizing of panels
-
 document.addEventListener('DOMContentLoaded', function(){
     console.log('Hello, Bear! Happy Valentine\'s Day :)');
 
     new Story();
 });
+
+window.addEventListener('unload', function(){
+    // Reset scroll so that refreshes start at the top of the page. 
+    document.body.scrollTop = 0;
+});
+
+window.addEventListener('resize', function(){
+    // Since we periodically set min-height explicitly, it needs to be cleared when the
+    // viewport dimensions change.
+    document.querySelector('.content-box').style['min-height'] = '100%';
+})
+
+window.addEventListener('orientationchange', function(){
+    // Since we periodically set min-height explicitly, it needs to be cleared when the
+    // viewport dimensions change.
+    document.querySelector('.content-box').style['min-height'] = '100%';
+})
 
 
 function Story(){
@@ -51,6 +62,7 @@ function Story(){
 
     this.continueButton.addEventListener('click', this.continue.bind(this));
     this.restartButton.addEventListener('click', this.restart.bind(this));
+    document.body.scrollTop = 0;
 }
 
 Story.prototype.destroy = function(){
@@ -209,17 +221,22 @@ Story.prototype.restart = function(evt){
     new Story();
 };
 
+// Note: this only scrolls down
 Story.prototype.smoothScrollTo = function(target){
-    var distance = target.offsetTop;
-    
+    // Clear any timer that currently exists (there shouldn't be one, though).
+    if (this.scrollTimer) clearInterval(this.scrollTimer);
+
     var scroll = function(){
+        var distance = target.offsetTop - BUFFER;
+        var maxScroll = document.body.scrollHeight - document.body.offsetHeight;
         var currentScroll = document.body.scrollTop;
-        var distanceToTravel = Math.ceil(Math.min(Story.DEFAULT_TRAVEL_DISTANCE, distance - currentScroll));
+        var distanceToTravel = Math.ceil(Math.min(Story.DEFAULT_TRAVEL_DISTANCE, Math.max(0, distance - currentScroll)));
+
         document.body.scrollTop += distanceToTravel;
         
         var newScroll = document.body.scrollTop;
 
-        if (newScroll <= currentScroll){
+        if (newScroll <= currentScroll || newScroll >= maxScroll){
             clearInterval(this.scrollTimer);
         }
     }.bind(this);
@@ -246,13 +263,18 @@ Story.prototype.touchStart = function(evt){
 
 Story.prototype.touchEnd = function(evt){
     if (event.touches.length === 0){
-        var touch = event.changedTouches[0];
-        var itemInfo = Story.options[touch.target.dataset.id];
-        var endElement = document.elementFromPoint(touch.clientX, touch.clientY);
-        
-        if (endElement === this.dropTarget){
-            this.chooseOption(itemInfo);
+        // If a single touch ended, check its drop location. If more than one touch was on 
+        // and all were removed, just cancel the drag. 
+        if (event.changedTouches.length === 1){
+            var touch = event.changedTouches[0];
+            var itemInfo = Story.options[touch.target.dataset.id];
+            var endElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (endElement === this.dropTarget){
+                this.chooseOption(itemInfo);
+            }
         }
+
         document.body.removeChild(this.dragIcon);
 
         touch.target.style.opacity = 1;
@@ -350,6 +372,12 @@ Story.prototype.chooseOption = function(itemInfo){
 
     // Show the continue or restart option.
     this.flowAction.classList.remove('hidden');
+
+    // Autoscroll to the added panels when the viewport is narrow and items are likely to all
+    // be in separate rows. 
+    if (document.body.offsetWidth <= 550) {
+        this.smoothScrollTo(newPanelGroup);
+    }
 }
 
 Story.DEFAULT_TRAVEL_DISTANCE = 20;
@@ -511,6 +539,8 @@ Story.options = {
         panelGroupClasses: ['final-panels'],
     },
 }
+
+var BUFFER = 15;
 
 // def transformRect2Polygon(elem):
 //     elem.tag = ns('polygon')
